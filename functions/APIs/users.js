@@ -100,7 +100,9 @@ const deleteImage = (imageName) => {
     .file(`${imageName}`)
     .delete()
     .then(() => console.log("delete successfully"))
-    .catch((err) => console.log(err));
+    .catch((err) => {
+      return;
+    });
 };
 
 exports.uploadProfilePhoto = (request, response) => {
@@ -152,4 +154,33 @@ exports.uploadProfilePhoto = (request, response) => {
       });
   });
   busboy.end(request.rawBody);
+};
+
+exports.getUserDetails = (request, response) => {
+  let userData = {};
+  db.doc(`/users/${request.user.username}`)
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        userData.userCredentials = doc.data();
+        return response.json(userData);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      return response.status(500).json({ error: err.code });
+    });
+};
+
+exports.updateUserDetail = (request, response) => {
+  let document = db.collection("users").doc(`${request.user.username}`);
+  document
+    .update(request.body)
+    .then(() => response.json({ message: "update successfully" }))
+    .catch((err) => {
+      console.error(err);
+      return response
+        .status(500)
+        .json({ message: "cannot update info", error: err.code });
+    });
 };

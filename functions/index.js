@@ -4,20 +4,30 @@ const app = require("express")();
 
 const {
   getAllTodos,
+  getOneTodo,
   postOneTodo,
   deleteTodo,
   editTodo,
 } = require("./APIs/todos");
-const { loginUser, signUpUser, uploadProfilePhoto } = require("./APIs/users");
+const {
+  loginUser,
+  signUpUser,
+  uploadProfilePhoto,
+  getUserDetails,
+  updateUserDetail,
+} = require("./APIs/users");
 const auth = require("./util/auth");
 
-app.get("/todo", getAllTodos);
-app.post("/todo", postOneTodo);
-app.delete("/todo/:todoId", deleteTodo);
-app.put("/todo/:todoId", editTodo);
+app.get("/todos", auth, getAllTodos);
+app.get("todo/:todoId", auth, getOneTodo);
+app.post("/todo", auth, postOneTodo);
+app.delete("/todo/:todoId", auth, deleteTodo);
+app.put("/todo/:todoId", auth, editTodo);
 
 app.post("/login", loginUser);
 app.post("/signup", signUpUser);
 app.post("/user/photo", auth, uploadProfilePhoto);
+app.get("/user", auth, getUserDetails);
+app.post("/user", auth, updateUserDetail);
 
 exports.api = functions.https.onRequest(app);
