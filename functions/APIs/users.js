@@ -15,7 +15,7 @@ exports.loginUser = (request, response) => {
   };
 
   const { valid, errors } = validateLoginData(user);
-  if (!valid) return response.status(400).json({ errors });
+  if (!valid) return response.status(400).json(errors);
 
   auth
     .signInWithEmailAndPassword(auth.getAuth(), user.email, user.password)
@@ -25,7 +25,7 @@ exports.loginUser = (request, response) => {
       console.error(err);
       return response
         .status(403)
-        .json({ message: "login fail, please try again" });
+        .json({ message: "Login fail, please try again" });
     });
 };
 
