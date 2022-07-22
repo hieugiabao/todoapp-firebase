@@ -86,6 +86,10 @@ exports.signUpUser = (request, response) => {
         return response
           .status(400)
           .json({ email: "this email is already taken" });
+      else if (err.code === "auth/weak-password")
+        return response
+          .status(400)
+          .json({ password: "password should be at least 6 characters" });
       else
         return response.status(500).json({
           error: err.code,
