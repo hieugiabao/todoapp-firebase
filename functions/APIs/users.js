@@ -93,3 +93,63 @@ exports.signUpUser = (request, response) => {
         });
     });
 };
+
+const deleteImage = (imageName) => {
+  const bucket = admin.storage().bucket();
+  return bucket
+    .file(`${imageName}`)
+    .delete()
+    .then(() => console.log("delete successfully"))
+    .catch((err) => console.log(err));
+};
+
+exports.uploadProfilePhoto = (request, response) => {
+  const BusBoy = require("busboy");
+  const path = require("path");
+  const os = require("os");
+  const fs = require("fs");
+  const busboy = BusBoy({ headers: request.headers });
+  let imageFileName,
+    imageToBeUploaded = {};
+
+  busboy.on("file", (name, stream, info) => {
+    const { mimeType, filename: fileName } = info;
+    if (mimeType !== "image/png" && mimeType !== "image/jpeg") {
+      return response.status(400).json({ error: "Wrong file type submited" });
+    }
+    const imageExtension = fileName.split(".")[fileName.split(".").length - 1];
+    imageFileName = `${request.user.username}.${imageExtension}`;
+    console.log(imageFileName);
+    const filePath = path.join(os.tmpdir(), imageFileName);
+    imageToBeUploaded = { filePath, mimetype: mimeType };
+    stream.pipe(fs.createWriteStream(filePath));
+  });
+
+  deleteImage(imageFileName);
+
+  busboy.on("finish", () => {
+    admin
+      .storage()
+      .bucket()
+      .upload(imageToBeUploaded.filePath, {
+        resumable: false,
+        metadata: {
+          metadata: {
+            contentType: imageToBeUploaded.mimetype,
+          },
+        },
+      })
+      .then(() => {
+        const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`;
+        return db.doc(`/users/${request.user.username}`).update({ imageUrl });
+      })
+      .then(() => {
+        return response.json({ message: "Image uploaded successfully" });
+      })
+      .catch((err) => {
+        console.error(err);
+        return response.status(500).json({ error: err.code });
+      });
+  });
+  busboy.end(request.rawBody);
+};
