@@ -138,7 +138,7 @@ exports.uploadProfilePhoto = (request, response) => {
       .storage()
       .bucket()
       .upload(imageToBeUploaded.filePath, {
-        resumable: false,
+        // resumable: false,
         metadata: {
           metadata: {
             contentType: imageToBeUploaded.mimetype,
@@ -150,7 +150,10 @@ exports.uploadProfilePhoto = (request, response) => {
         return db.doc(`/users/${request.user.username}`).update({ imageUrl });
       })
       .then(() => {
-        return response.json({ message: "Image uploaded successfully" });
+        return response.json({
+          message: "Image uploaded successfully",
+          url: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${imageFileName}?alt=media`,
+        });
       })
       .catch((err) => {
         console.error(err);

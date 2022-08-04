@@ -43,5 +43,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5000/todo-project-2ead0/us-central1/api"
+  "proxy": "http://localhost:5001/todo-project-2ead0/us-central1/api"
 }

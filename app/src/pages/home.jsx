@@ -17,9 +17,9 @@ import {
   Typography,
 } from "@mui/material";
 import { AccountBox, ExitToApp, Notes } from "@mui/icons-material";
-import axios from "axios";
-import { useEffect } from "react";
-import { authMiddleware } from "../util/auth";
+import { useAuth } from "../hooks/useAuth";
+import Account from "../components/Account";
+import Todo from "../components/Todo";
 
 const drawerWidth = 240;
 
@@ -64,42 +64,9 @@ const styles = (theme) => ({
 });
 
 const Home = ({ classes }) => {
-  const userDefault = {
-    firstName: "",
-    lastName: "",
-    profilePicture: "",
-  };
-
   const [render, setRender] = useState(false);
-  const [user, setUser] = useState(userDefault);
-  const [UILoading, setUILoading] = useState(true);
-  const [errMsg, setErrMsg] = useState("");
   const navigate = useNavigate();
-
-  useEffect(() => {
-    authMiddleware(navigate);
-    const authToken = localStorage.getItem("auth-token");
-    axios.defaults.headers.common["Authorization"] = `${authToken}`;
-    axios
-      .get("/user")
-      .then((res) => {
-        console.log(res.data);
-        setUser({
-          firstName: res.data.userCredentials.firstName,
-          lastName: res.data.userCredentials.lastName,
-          email: res.data.userCredentials.email,
-          country: res.data.userCredentials.country,
-          username: res.data.userCredentials.username,
-          profilePicture: res.data.userCredentials.imageUrl,
-        });
-        setUILoading(false);
-      })
-      .catch((err) => {
-        if (err.response.status === 403) navigate("/login");
-        console.log(err);
-        setErrMsg("Error in retrieving the data");
-      });
-  }, [navigate]);
+  const { user, loading: UILoading, error, setUser } = useAuth();
 
   if (UILoading) {
     return (
@@ -126,7 +93,11 @@ const Home = ({ classes }) => {
           <div className={classes.toolbar}></div>
           <Divider />
           <center>
-            <Avatar src={user.profilePicture} className={classes.avatar} />
+            <Avatar
+              src={user.profilePicture}
+              className={classes.avatar}
+              sx={{ width: 60, height: 60 }}
+            />
             <p>
               {" "}
               {user.firstName} {user.lastName}
@@ -166,6 +137,10 @@ const Home = ({ classes }) => {
             </ListItem>
           </List>
         </Drawer>
+
+        <div>
+          {render ? <Account user={user} setUser={setUser} /> : <Todo />}
+        </div>
       </div>
     );
 };
