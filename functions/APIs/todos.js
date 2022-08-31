@@ -18,7 +18,7 @@ exports.getAllTodos = (request, response) => {
       return response.json(todos);
     })
     .catch((err) => {
-      console.err(err);
+      console.log(err);
       return response.status(500).json({ error: err.code });
     });
 };

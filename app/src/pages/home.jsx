@@ -29,7 +29,6 @@ const styles = (theme) => ({
   },
   appBar: {
     zIndex: "1251 !important",
-    backgroundColor: "rebeccapurple !important",
   },
   drawer: {
     width: drawerWidth,
@@ -58,15 +57,13 @@ const styles = (theme) => ({
     left: "50%",
     top: "35%",
   },
-  toolbar: {
-    minHeight: 64,
-  },
+  toolbar: theme.mixins.toolbar,
 });
 
 const Home = ({ classes }) => {
   const [render, setRender] = useState(false);
   const navigate = useNavigate();
-  const { user, loading: UILoading, error, setUser } = useAuth();
+  const { user, loading: UILoading, setUser } = useAuth();
 
   if (UILoading) {
     return (
@@ -96,7 +93,7 @@ const Home = ({ classes }) => {
             <Avatar
               src={user.profilePicture}
               className={classes.avatar}
-              sx={{ width: 60, height: 60 }}
+              sx={{ width: 110, height: 100 }}
             />
             <p>
               {" "}
