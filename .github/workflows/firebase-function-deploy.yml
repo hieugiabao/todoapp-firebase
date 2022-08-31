@@ -33,6 +33,13 @@ jobs:
           envkey_FIREBASE_MEASURMENTID: $${{ secrets.measuremtID }}
           directory: "functions/"
           filename: .env
+      - name: create env json
+        uses: jsdaniell/create-json@1.1.2
+        id: create-env-json
+        with:
+          name: "env.json"
+          json: '{"apiKey" : "${{secrets.apiKey}}" }'
+          dir: "functions/"
       - name: clear env configs
         uses: w9jds/firebase-action@master
         with:
